@@ -1,61 +1,92 @@
+var startTime;
+var slicesFinished = 0;
+var numWorkers = 0;
+
 function draw() {
 	var canvas = document.getElementById("can");
 	if (canvas.getContext) {
 		var ctx = canvas.getContext("2d");
 
-		// Set up constants
-		var imageWidth = canvas.width;
+        var imageWidth = canvas.width;
 		var imageHeight = canvas.height;
-		var minReal = -2.0;
-		var maxReal = 1.0;
-		var minImaginary = -1.2;
 
+        numWorkers = 2;
+        slicesFinished = 0;
+        
 		// We have all the info we need, so do the drawing
-		drawMandelbrot(ctx, imageWidth, imageHeight, minReal, maxReal, minImaginary);
+        startTime = new Date();
+		drawMandelbrot(ctx, imageWidth, imageHeight, numWorkers);
 	}
 }
 
-function drawMandelbrot(ctx, width, height, minReal, maxReal, minImaginary) {
-	var maxIterations = 50;
+function drawMandelbrot(ctx, width, height, numWorkers) {
+	var maxIterations = 100;
+    var minReal = -1.0;
+	var maxReal = 0.2;
+	var minImaginary = -1.2;
 
 	if (ctx) {
 		var maxImaginary = minImaginary + (maxReal - minReal) * (height / width);
 		var realFactor = (maxReal - minReal) / (width - 1);
 		var imaginaryFactor = (maxImaginary - minImaginary) / (height - 1);
+		
+        var startX = 0;
+        var startY = 0;
+        
+        var sliceForEachWorker = parseInt(height / numWorkers);
+        
+        // Start up the workers
+        for (var i = 0; i < numWorkers; i++) {
+            startY = parseInt(i * sliceForEachWorker);
+            
+            var argArray = [startX, width, startY, sliceForEachWorker, maxImaginary, imaginaryFactor, minReal, realFactor, maxIterations];
+            
+            var worker = new Worker("mandelbrotRenderer.js");
+            
+            worker.onmessage = function(event) {
+                var retArray = event.data;
+                var retStartX = retArray[0];
+                var retStartY = retArray[1];
+                var valueArray = retArray[2];
+                
+                paintToCanvas(ctx, retStartX, retStartY, valueArray);
+            };
 
-		for (var y = 0; y < height; ++y) {
-			var cImaginary = maxImaginary - y * imaginaryFactor;
+            worker.onerror = function(error) {
+                dump("Worker error: " + error.message + "\n");
+                throw error;
+            };
 
-			for (var x = 0; x < width; ++x) {
-				var cReal = minReal + x * realFactor;
+            worker.postMessage(argArray);
+        }
+	}
+}
 
-				// Calculate if c is in the set
-				var zReal = cReal;
-				var zImaginary = cImaginary;
-				var inSet = true;
-				var it = 0;
+function paintToCanvas(ctx, startX, startY, array) {
+    var arrayHeight = array.length;
+    var arrayWidth = 0;
+    
+    if (arrayHeight > 0) {
+        arrayWidth = array[0].length;
+    }
 
-				for (it = 0; it < maxIterations; ++it) {
-					var zReal2 = zReal * zReal;
-					var zImaginary2 = zImaginary * zImaginary;
-
-					// if abs(z) > 2
-					if ((zReal2 + zImaginary2) > 4) {
-						inSet = false;
-						break;
-					}
-					zImaginary = 2 * zReal * zImaginary + cImaginary;
-					zReal = zReal2 - zImaginary2 + cReal;
-				}	
-
-				if (inSet) {
-					ctx.fillStyle = "rgba(0, 0, 0, 1.0)";
-					ctx.fillRect(x, y, 1, 1);
-				} else {
-					ctx.fillStyle = "rgba(" + it * 5 + ", 0, 0, 1.0)";
-					ctx.fillRect(x, y, 1, 1);
-				}
-			}
-		}	
-	}	
+    var lastBrightness = 0;
+    for (var i = 0; i < arrayHeight; i++) {
+        for (var j = startX; j < arrayWidth; j++) {
+            var brightness = parseInt((array[i][j] / 100) * 254);
+            if (lastBrightness != brightness) {
+                ctx.fillStyle = "rgba(" + brightness + ", 0, 0, 1.0)";
+                lastBrightness = brightness;
+            }
+            ctx.fillRect(j, (startY + i), 1, 1);
+        }
+    }
+    
+    slicesFinished = slicesFinished + 1;
+    
+    if (slicesFinished == numWorkers) {
+        var endTime = new Date();
+        var timing = (endTime - startTime) / 1000;
+        document.getElementById("messageDiv").textContent = "Rendering took " + timing + " seconds.";
+    }
 }
