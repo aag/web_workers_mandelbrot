@@ -19,8 +19,6 @@ function drawMandelbrot(ctx, width, height, minReal, maxReal, minImaginary) {
 	var maxIterations = 50;
 
 	if (ctx) {
-		ctx.fillStyle = "rgba(0, 0, 0, 1.0)";
-
 		var maxImaginary = minImaginary + (maxReal - minReal) * (height / width);
 		var realFactor = (maxReal - minReal) / (width - 1);
 		var imaginaryFactor = (maxImaginary - minImaginary) / (height - 1);
@@ -35,8 +33,9 @@ function drawMandelbrot(ctx, width, height, minReal, maxReal, minImaginary) {
 				var zReal = cReal;
 				var zImaginary = cImaginary;
 				var inSet = true;
+				var it = 0;
 
-				for (var n = 0; n < maxIterations; ++n) {
+				for (it = 0; it < maxIterations; ++it) {
 					var zReal2 = zReal * zReal;
 					var zImaginary2 = zImaginary * zImaginary;
 
@@ -48,7 +47,12 @@ function drawMandelbrot(ctx, width, height, minReal, maxReal, minImaginary) {
 					zImaginary = 2 * zReal * zImaginary + cImaginary;
 					zReal = zReal2 - zImaginary2 + cReal;
 				}	
+
 				if (inSet) {
+					ctx.fillStyle = "rgba(0, 0, 0, 1.0)";
+					ctx.fillRect(x, y, 1, 1);
+				} else {
+					ctx.fillStyle = "rgba(" + it * 5 + ", 0, 0, 1.0)";
 					ctx.fillRect(x, y, 1, 1);
 				}
 			}
