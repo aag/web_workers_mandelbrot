@@ -1,7 +1,7 @@
 onmessage = function(event) {
-	var argArray = event.data;
+	var args = event.data;
 	
-	var retArray = renderRows(argArray);
+	var retArray = renderRows(args);
 	
 	postMessage(retArray);
 };
@@ -17,28 +17,24 @@ function renderRows(args) {
 	var minReal = args.minReal;
 	var realFactor = args.realFactor;
 	var maxIterations = args.maxIterations;
-	
-	var valueArray = new Array(height);
+	var imageData = args.imageData;
 	
 	for (var y = 0; y < height; y++) {
 		var cImaginary = maxImaginary - (startY + y) * imaginaryFactor;
 
-		var rowArray = renderRow(startX, width, minReal, realFactor, cImaginary, maxIterations);
-		valueArray[y] = rowArray;
+		renderRow(startX, y, width, minReal, realFactor, cImaginary, maxIterations, imageData);
 	}
 	
 	var retValues = new Object;
 	retValues.workerID = workerID;
 	retValues.startX = startX;
 	retValues.startY = startY;
-	retValues.valueArray = valueArray;
+	retValues.imageData = imageData;
 
 	return retValues;
 }
 
-function renderRow(startX, width, minReal, realFactor, cImaginary, maxIterations) {
-	var retArray = new Array(width);
-
+function renderRow(startX, y, width, minReal, realFactor, cImaginary, maxIterations, imageData) {
 	for (var x = startX; x < width; x++) {
 		var cReal = minReal + x * realFactor;
 
@@ -61,13 +57,15 @@ function renderRow(startX, width, minReal, realFactor, cImaginary, maxIterations
 			zReal = zReal2 - zImaginary2 + cReal;
 		}
 
-		if (inSet) {
-			retArray[x] = 0;
-		} else {
-			// Scale the brightness to 100
-			retArray[x] = (it / maxIterations) * 100;
+		var brightness = 0;
+		if (!inSet) {
+			brightness = (it / maxIterations) * 254;
 		}
+
+		var pixelStartPos = ((y * width) + x) * 4;
+		// Set the opacity to solid
+		imageData[pixelStartPos + 3] = 255;
+		// Set the red to the brightness
+		imageData[pixelStartPos] = brightness;
 	}
-	
-	return retArray;
 }

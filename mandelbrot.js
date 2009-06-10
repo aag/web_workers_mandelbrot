@@ -11,7 +11,7 @@ function draw() {
 		var imageWidth = canvas.width;
 		var imageHeight = canvas.height;
 
-		numWorkers = 6;
+		numWorkers = 2;
 		slicesFinished = 0;
 		returnedValueArrays = new Array(numWorkers);
 		
@@ -41,6 +41,8 @@ function drawMandelbrot(ctx, width, height, numWorkers) {
 		// Start up the workers
 		for (var i = 0; i < numWorkers; i++) {
 			startY = parseInt(i * sliceForEachWorker);
+
+			var imageData = ctx.createImageData(width, sliceForEachWorker);
 			
 			var args = new Object;
 			args.workerID = i;
@@ -53,20 +55,26 @@ function drawMandelbrot(ctx, width, height, numWorkers) {
 			args.minReal = minReal;
 			args.realFactor = realFactor;
 			args.maxIterations = maxIterations;
+			args.imageData = imageData.data;
 
 			var worker = new Worker("mandelbrotRenderer.js");
 			
 			worker.onmessage = function(event) {
 				var theTime = new Date();
+				logToMessageDiv("Worker " + workerID + " returned from rendering: " + theTime + " diff: " + ((theTime - startTime) / 1000));
+
 				var renderValues = event.data;
 				var workerID = renderValues.workerID;
 				var retStartX = renderValues.startX;
 				var retStartY = renderValues.startY;
-				var valueArray = renderValues.valueArray;
+				var retImageData = renderValues.imageData;
 
-				logToMessageDiv("Worker " + workerID + " returned: " + theTime + " diff: " + ((theTime - startTime) / 1000));
-				
-				paintToCanvas(ctx, retStartX, retStartY, valueArray);
+				var newImageData = ctx.createImageData(width, sliceForEachWorker);
+				newImageData.data = retImageData;
+				ctx.putImageData(newImageData, retStartX, retStartY);
+
+				theTime = new Date();
+				logToMessageDiv("Worker " + workerID + " finished drawing: " + theTime + " diff: " + ((theTime - startTime) / 1000));
 			};
 
 			worker.onerror = function(error) {
@@ -76,35 +84,6 @@ function drawMandelbrot(ctx, width, height, numWorkers) {
 
 			worker.postMessage(args);
 		}
-	}
-}
-
-function paintToCanvas(ctx, startX, startY, array) {
-	var arrayHeight = array.length;
-	var arrayWidth = 0;
-	
-	if (arrayHeight > 0) {
-		arrayWidth = array[0].length;
-	}
-
-	var lastBrightness = 0;
-	for (var i = 0; i < arrayHeight; i++) {
-		for (var j = startX; j < arrayWidth; j++) {
-			var brightness = parseInt((array[i][j] / 100) * 254);
-			if (lastBrightness != brightness) {
-				ctx.fillStyle = "rgba(" + brightness + ", 0, 0, 1.0)";
-				lastBrightness = brightness;
-			}
-			ctx.fillRect(j, (startY + i), 1, 1);
-		}
-	}
-	
-	slicesFinished = slicesFinished + 1;
-	
-	if (slicesFinished == numWorkers) {
-		var endTime = new Date();
-		var timing = (endTime - startTime) / 1000;
-		logToMessageDiv("Rendering took " + timing + " seconds.");
 	}
 }
 
