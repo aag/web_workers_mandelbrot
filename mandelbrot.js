@@ -11,7 +11,9 @@ function draw() {
 		var imageWidth = canvas.width;
 		var imageHeight = canvas.height;
 
-		numWorkers = 2;
+		clearCanvas(ctx, imageWidth, imageHeight);
+
+		numWorkers = getNumWorkersFromPage();
 		slicesFinished = 0;
 		returnedValueArrays = new Array(numWorkers);
 		
@@ -22,10 +24,28 @@ function draw() {
 	}
 }
 
+function clearCanvas(ctx, width, height) {
+//	ctx.fillStyle = "rgb(0,0,0)";
+	ctx.clearRect(0, 0, width, height);
+}
+
+function getNumWorkersFromPage() {
+	var retVal = 0;
+
+	var nwSelect = document.getElementById("numWorkers");
+	if (nwSelect) {
+		retVal = parseInt(nwSelect.options[nwSelect.selectedIndex].value);
+	}
+
+	logToMessageDiv("NumWorkers: " + retVal);
+
+	return retVal;
+}
+
 function drawMandelbrot(ctx, width, height, numWorkers) {
 	var maxIterations = 100;
-	var minReal = -1.0;
-	var maxReal = 0.2;
+	var minReal = -2.0;
+	var maxReal = 1.0;
 	var minImaginary = -1.2;
 
 	if (ctx) {

@@ -16,6 +16,14 @@
 		<p>This is a Mandelbrot Set browser that renders the images using the new <a href="http://www.whatwg.org/specs/web-workers/current-work/">Web Workers</a> constructs.  It has been developed using Firefox 3.5.</p>
 		<canvas id='can' width='800' height='600'></canvas>
         <br />
+		Number of workers:  
+		<select name="NumberOfWorkers" id="numWorkers">
+			<option value="0">0</option>
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="4">4</option>
+			<option value="8">8</option>
+		</select>
         <input type="button" name="RenderButton" value="Render" onclick="draw()">
         <div id="messageDiv"></div>        
 	</div>
