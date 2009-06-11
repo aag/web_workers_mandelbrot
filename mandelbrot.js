@@ -11,7 +11,8 @@ function draw() {
 		var imageWidth = canvas.width;
 		var imageHeight = canvas.height;
 
-		clearCanvas(ctx, imageWidth, imageHeight);
+		// Clear the whole canvas
+		ctx.clearRect(0, 0, imageWidth, imageHeight);
 
 		numWorkers = getNumWorkersFromPage();
 		slicesFinished = 0;
@@ -20,13 +21,8 @@ function draw() {
 		// We have all the info we need, so do the drawing
 		startTime = new Date();
 		logToMessageDiv("Starting to draw: " + startTime);
-		drawMandelbrot(ctx, imageWidth, imageHeight, numWorkers);
+		drawMandelbrotWithWorkers(ctx, imageWidth, imageHeight, numWorkers);
 	}
-}
-
-function clearCanvas(ctx, width, height) {
-//	ctx.fillStyle = "rgb(0,0,0)";
-	ctx.clearRect(0, 0, width, height);
 }
 
 function getNumWorkersFromPage() {
@@ -42,7 +38,7 @@ function getNumWorkersFromPage() {
 	return retVal;
 }
 
-function drawMandelbrot(ctx, width, height, numWorkers) {
+function drawMandelbrotWithWorkers(ctx, width, height, numWorkers) {
 	var maxIterations = 100;
 	var minReal = -2.0;
 	var maxReal = 1.0;
@@ -81,20 +77,21 @@ function drawMandelbrot(ctx, width, height, numWorkers) {
 			
 			worker.onmessage = function(event) {
 				var theTime = new Date();
-				logToMessageDiv("Worker " + workerID + " returned from rendering: " + theTime + " diff: " + ((theTime - startTime) / 1000));
 
 				var renderValues = event.data;
-				var workerID = renderValues.workerID;
+				var retWorkerID = renderValues.workerID;
 				var retStartX = renderValues.startX;
 				var retStartY = renderValues.startY;
 				var retImageData = renderValues.imageData;
+
+				logToMessageDiv("Worker " + retWorkerID + " returned from rendering: " + theTime + " diff: " + ((theTime - startTime) / 1000));
 
 				var newImageData = ctx.createImageData(width, sliceForEachWorker);
 				newImageData.data = retImageData;
 				ctx.putImageData(newImageData, retStartX, retStartY);
 
 				theTime = new Date();
-				logToMessageDiv("Worker " + workerID + " finished drawing: " + theTime + " diff: " + ((theTime - startTime) / 1000));
+				logToMessageDiv("Worker " + retWorkerID + " finished drawing: " + theTime + " diff: " + ((theTime - startTime) / 1000));
 			};
 
 			worker.onerror = function(error) {
