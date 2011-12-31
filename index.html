@@ -10,14 +10,14 @@
 	<script type="text/javascript" src="mandelbrot.js"></script>
 </head>
 
-<body>
+<body onload="init()">
 	<div id='main'>
 		<h2>Mandelbrot Set Browser using Web Workers</h2>
 		<p>This is a Mandelbrot Set browser that renders the images using the new <a href="http://www.whatwg.org/specs/web-workers/current-work/">Web Workers</a> constructs.  It has been developed using Firefox 3.5.</p>
 		<canvas id='can' width='800' height='600'></canvas>
         <br />
 		Number of workers:  
-		<select name="NumberOfWorkers" id="numWorkers">
+		<select name="NumberOfWorkers" id="numWorkers" onchange="reInitWorkerPool()">
 			<option value="0">0</option>
 			<option value="1">1</option>
 			<option value="2">2</option>
