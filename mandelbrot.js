@@ -1,7 +1,5 @@
 var startTime;
 var slicesFinished = 0;
-var numWorkers = 0;
-var returnedValueArrays = null;
 var workerPool = null;
 
 function init() {
@@ -9,7 +7,7 @@ function init() {
 }
 
 function reInitWorkerPool() {
-	numWorkers = getNumWorkersFromPage();
+	var numWorkers = getNumWorkersFromPage();
 	logToMessageDiv("Re-initializing the worker pool to size: " + numWorkers);
 	workerPool = null;
 	workerPool = new Array(numWorkers);
@@ -35,7 +33,7 @@ function getNewWorker() {
 
 		var width = getCanvasContext().canvas.width;
 		var height = getCanvasContext().canvas.height;
-		var sliceForEachWorker = parseInt(height / numWorkers);
+		var sliceForEachWorker = parseInt(height / workerPool.length);
 
 		var newImageData = getCanvasContext().createImageData(width, sliceForEachWorker);
         for (var i = 0; i < retImageData.length; i++) {
@@ -62,14 +60,12 @@ function draw() {
 	// Clear the whole canvas
 	getCanvasContext().clearRect(0, 0, imageWidth, imageHeight);
 
-	numWorkers = getNumWorkersFromPage();
 	slicesFinished = 0;
-	returnedValueArrays = new Array(numWorkers);
 		
 	// We have all the info we need, so do the drawing
 	startTime = new Date();
 	logToMessageDiv("Starting to draw: " + startTime);
-	drawMandelbrotWithWorkers(numWorkers);
+	drawMandelbrotWithWorkers();
 }
 
 function getNumWorkersFromPage() {
@@ -83,7 +79,7 @@ function getNumWorkersFromPage() {
 	return retVal;
 }
 
-function drawMandelbrotWithWorkers(numWorkers) {
+function drawMandelbrotWithWorkers() {
 	var maxIterations = 100;
 	var minReal = -2.0;
 	var maxReal = 1.0;
@@ -100,10 +96,10 @@ function drawMandelbrotWithWorkers(numWorkers) {
 		var startX = 0;
 		var startY = 0;
 		
-		var sliceForEachWorker = parseInt(height / numWorkers);
+		var sliceForEachWorker = parseInt(height / workerPool.length);
 		
 		// Send work to the workers
-		for (var i = 0; i < numWorkers; i++) {
+		for (var i = 0; i < workerPool.length; i++) {
 			startY = parseInt(i * sliceForEachWorker);
 
 			var imageData = getCanvasContext().createImageData(width, sliceForEachWorker);
