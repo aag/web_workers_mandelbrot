@@ -42,7 +42,14 @@ function getNewWorker() {
 		getCanvasContext().putImageData(newImageData, retStartX, retStartY);
 
 		theTime = new Date();
-		logToMessageDiv("Worker " + retWorkerID + " finished drawing: " + theTime + " diff: " + ((theTime - startTime) / 1000));
+        var elapsedTime = ((theTime - startTime) / 1000);
+		logToMessageDiv("Worker " + retWorkerID + " finished drawing: " + theTime + " diff: " + elapsedTime);
+
+        slicesFinished++;
+        if (slicesFinished == workerPool.length) {
+            logToMessageDiv("All workers finished.  Total time elapsed: " + elapsedTime);
+            logToTimeTable(workerPool.length, elapsedTime);
+        }
 	};
 
 	worker.onerror = function(error) {
@@ -64,7 +71,7 @@ function draw() {
 		
 	// We have all the info we need, so do the drawing
 	startTime = new Date();
-	logToMessageDiv("Starting to draw: " + startTime);
+	logToMessageDiv("Starting the worker threads.");
 	drawMandelbrotWithWorkers();
 }
 
@@ -136,9 +143,15 @@ function getCanvasContext() {
 
 var messageDiv;
 function logToMessageDiv(message) {
+    return;
 	if (!messageDiv) {
 		messageDiv = document.getElementById("messageDiv");
 	}
 
 	messageDiv.innerHTML += message + "<br />\n";
+}
+
+function logToTimeTable(workers, time) {
+    var cell = document.getElementById("cell" + workers);
+    cell.innerHTML += time + "<br />\n";
 }
