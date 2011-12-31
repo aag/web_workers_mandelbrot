@@ -3,11 +3,11 @@
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
 
-	<title>Mandelbrot Browser using Web Workers</title>
+    <title>Mandelbrot Browser using Web Workers</title>
 
-	<script type="text/javascript" src="mandelbrot.js"></script>
+    <script type="text/javascript" src="mandelbrot.js"></script>
     <style>
         table {
             border: 1px solid black;
@@ -29,18 +29,18 @@
 </head>
 
 <body onload="init()">
-	<div id='main'>
-		<h2>Mandelbrot Set Browser using Web Workers</h2>
-		<p>This is a Mandelbrot Set browser that renders the images using <a href="http://www.whatwg.org/specs/web-workers/current-work/">Web Workers</a>.  It has been tested in Firefox.</p>
-		<canvas id='can' width='800' height='600'></canvas>
+    <div id='main'>
+        <h2>Mandelbrot Set Browser using Web Workers</h2>
+        <p>This is a Mandelbrot Set browser that renders the images using <a href="http://www.whatwg.org/specs/web-workers/current-work/">Web Workers</a>.  It has been tested in Firefox.</p>
+        <canvas id='can' width='800' height='600'></canvas>
         <br />
-		Number of workers:  
-		<select name="NumberOfWorkers" id="numWorkers" onchange="reInitWorkerPool()">
-			<option value="1">1</option>
-			<option value="2">2</option>
-			<option value="4">4</option>
-			<option value="8">8</option>
-		</select>
+        Number of workers:  
+        <select name="NumberOfWorkers" id="numWorkers" onchange="reInitWorkerPool()">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="4">4</option>
+            <option value="8">8</option>
+        </select>
         <input type="button" name="RenderButton" value="Render" onclick="draw()"><br />
         <br />
         <table cellspacing="0" cellpadding="0">
@@ -62,6 +62,6 @@
             </thead>
         </table>
         <div id="messageDiv"></div>
-	</div>
+    </div>
 </body>
 </html>
