@@ -1,0 +1,5 @@
+This is an HTML5 experiment with Web Workers.  The result is a multithreaded
+Mandelbrot Set renderer that draws to a canvas element.
+
+You can see the code in action on this page:
+http://definingterms.com/Files/WebWorkersMandelbrot/
