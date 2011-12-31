@@ -57,15 +57,31 @@ function renderRow(startX, y, width, minReal, realFactor, cImaginary, maxIterati
 			zReal = zReal2 - zImaginary2 + cReal;
 		}
 
-		var brightness = 0;
+		var intensity = 0;
+        var red = 0;
+        var green = 0;
+        var blue = 0;
+
 		if (!inSet) {
-			brightness = (it / maxIterations) * 254;
+			intensity = (it / maxIterations) * 762;
+            if (intensity > 0 && intensity <= 254) {
+                red = intensity;
+            } else if (intensity > 254 && intensity <= 508) {
+                red = 254;
+                green = intensity - 254;
+            } else if (intensity > 508) {
+                red = 254;
+                green = 254;
+                blue = intensity - 508;
+            }
 		}
 
 		var pixelStartPos = ((y * width) + x) * 4;
 		// Set the opacity to solid
 		imageData[pixelStartPos + 3] = 255;
-		// Set the red to the brightness
-		imageData[pixelStartPos] = brightness;
+		// Set the color
+		imageData[pixelStartPos] = red;
+		imageData[pixelStartPos + 1] = green;
+		imageData[pixelStartPos + 2] = blue;
 	}
 }
