@@ -3,3 +3,5 @@ Mandelbrot Set renderer that draws to a canvas element.
 
 You can see the code in action on this page:
 http://definingterms.com/Files/WebWorkersMandelbrot/
+
+This code is free software licensed under the GPL 3.
