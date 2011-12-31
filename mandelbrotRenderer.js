@@ -63,7 +63,7 @@ function renderRow(startX, y, width, minReal, realFactor, cImaginary, maxIterati
         var blue = 0;
 
 		if (!inSet) {
-			intensity = (it / maxIterations) * 762;
+			intensity = ((it / maxIterations) * 722) + 40;
             if (intensity > 0 && intensity <= 254) {
                 red = intensity;
             } else if (intensity > 254 && intensity <= 508) {
