@@ -2,6 +2,6 @@ This is an HTML5 experiment with Web Workers.  The result is a multithreaded
 Mandelbrot Set renderer that draws to a canvas element.
 
 You can see the code in action on this page:
-http://definingterms.com/Files/WebWorkersMandelbrot/
+http://definingterms.com/Files/web_workers_mandelbrot/
 
 This code is free software licensed under the GPL 3.
